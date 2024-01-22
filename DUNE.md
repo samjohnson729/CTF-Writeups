@@ -64,7 +64,7 @@ Disallow: /chapterhouse/
 Okay, great! Let's check out `/chapterhouse`.
 
 We found our first flag at the bottom of the page: `DUNE{NotTheFlag}`
-We also see that Jessica instruct us (Paul) to find Duncah Idaho, and she gives us the key information that Duncan has a weak password. Let's see if we can use the username `duncan` to brute force entry into FTP or SSH.
+We also see that Jessica instructs us (Paul) to find Duncan Idaho, and she gives us the key information that Duncan has a weak password. Let's see if we can use the username `duncan` to brute force entry into FTP or SSH.
 
 ## 3. FTP
 
@@ -101,7 +101,7 @@ $ ftp duncan@<ip-address>
 Connected to <ip-address>.
 220 Swordmaster Duncan Idaho's Quarters
 331 Please specify the password.
-Password: duncan
+Password: <redacted>
 230 Login successful.
 Remote system type is UNIX.
 Using binary mode to transfer files.
@@ -164,7 +164,7 @@ wrote extracted data to "hidden.txt".
 
 It worked! The hidden message tells us to join the Duke in his private quarters to complete our trianing: `/<redacted>`
 
-This looks a file path, let's try navigating to `/<redacted>` on the web server.
+This looks like a file path, let's try navigating to `/<redacted>` on the web server.
 
 ## 5. Web Server Part 2
 
@@ -172,20 +172,20 @@ I tried to access the web page `/<redacted>`, but I was immediately redirected t
 
 `view-source:http://<ip-address>/<redacted>`
 
-Looks like it worked, we can view the source code. There is a snippes of `javascript` in the header of the page that was redirecting us. To view the rendered page, we can disable `javascript` and navigate to `/<redacted>` again.
+Looks like it worked, we can view the source code. There is a snippet of `javascript` in the header of the page that was redirecting us. To view the rendered page, we can disable `javascript` and navigate to `/<redacted>` again. In Firefox, `javascript` can be disabled by naviagting to `about:config` and searching for `javascript`.
 
 This page reveals to us our fourth flag: `DUNE{NotTheFlag}`. It also contains what looks like our (`paul`'s) SSH private key! Let's see if we can SSH into the box.
 
 ## 6. SSH
 
-I tried logging in as `paul` using that SSH key, but it requires a passphrase. Let's see if we can brute force the passphrase using John the Ripper! First step is convert the SSH key into the raw hash format that John the Ripper can consume.
+I tried logging in as `paul` using that SSH key, but it requires a passphrase. Let's see if we can brute force the passphrase using John the Ripper! The first step is to convert the SSH key into the raw hash format that John the Ripper can consume.
 
 The following command uses the `ssh2john` utility from John the Ripper to extract the hash from the SSH key (called `id_rsa`) and dump the output into a new file called `hash`:
 
 ```
 $ python /opt/john/run/ssh2john.py id_rsa > hash
 ```
-Now we can try to brute force the passphrase using theJohn the Ripper and the rockyou.txt wordlist:
+Now we can try to brute force the passphrase using John the Ripper and the rockyou.txt wordlist:
 
 ```
 $ sudo john hash --wordlist=/usr/share/wordlists/rockyou.txt
@@ -205,7 +205,7 @@ Got it! Now we can use this passphrase to login as `paul` via SSH: `$ ssh -i id_
 
 ## 7. Pirvilege Escalation
 
-Right away we get our next flag from `paul.flag`: `DUNE{NotTheFlag}`. There is also an file called `ride-sandworm` in our home directory, but we have no permissions for it. I first checked to see if we were in any intersting groups, but we are not. Now let's check if we have any entries in the `sudoer` file:
+Right away we get our next flag from `paul.flag`: `DUNE{NotTheFlag}`. There is also a file called `ride-sandworm` in our home directory, but we have no permissions for it. I checked to see if we were in any intersting groups, but we are not. Now let's check if we have any entries in the `sudoer` file:
 
 ```
 $ sudo -l
@@ -270,7 +270,7 @@ num_harkonnens_killed = random.randint(1,100)
 print(f"The Fremen raid on the Harkonnens killed {num_harkonnens_killed} Harkonnens.")
 ```
 
-It uses python's `random` module to generate a random integer from 1 to 100, then prints it. We can exploit this by adding our own malicious `random` module to execute whatever we wish. Unfortunately this is only useful if we can run `python3` as a privileged user. The `python3` binary doesn't have the SUID bit set, and we can not use `sudo` to run the command. Let's try running `linpeas.sh` to see if we can find any other attack vectors.
+It uses python's `random` module to generate a random integer from 1 to 100, then prints it. We can exploit this by adding our own malicious `random` module to execute whatever we wish. To do this, just create a file called `random.py` in the same directory as `raid-the-harkonnens.py` and add the `randint()` function to it. You can write to contents of the function to be whatever malicious code you want to add. Unfortunately this is only useful if we can run `python3` as a privileged user. The `python3` binary doesn't have the SUID bit set, and we can not use `sudo` to run the command. Let's try running `linpeas.sh` to see if we can find any other attack vectors.
 
 ```
 
