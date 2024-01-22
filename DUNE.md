@@ -264,4 +264,8 @@ num_harkonnens_killed = random.randint(1,100)
 print(f"The Fremen raid on the Harkonnens killed {num_harkonnens_killed} Harkonnens.")
 ```
 
-It uses python's `random` module to generate a random integer from 1 to 100, then prints it. We can exploit 
+It uses python's `random` module to generate a random integer from 1 to 100, then prints it. We can exploit this by adding our own malicious `random` module to execute whatever we wish. Unfortunately this is only useful if we can run `python3` as a privileged user. The `python3` binary doesn't have the SUID bit set, and we can not use `sudo` to run the command. Let's try running `linpeas.sh` to see if we can find any other attack vectors.
+
+```
+
+```
