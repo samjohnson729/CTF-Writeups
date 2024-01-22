@@ -1,6 +1,9 @@
 # TryHackMe: DUNE
+
 https://tryhackme.com/room/dune
+
 ## 1. Network Enumeration
+
 Use `nmap` to run a quick port scan to see what services are running on the box:
 
 ```
@@ -17,8 +20,11 @@ PORT   STATE SERVICE
 
 Nmap done: 1 IP address (1 host up) scanned in 29.04 seconds
 ```
-We see that this box is running an FTP, SSH, and HTTP servers. Let's take a look at the HTTP server.
+
+We see that this box is running the following services: FTP, SSH, and HTTP. Let's take a look at the HTTP server.
+
 ## 2. Web Server
+
 The home page of the web server gives a quick summary of Frank Herbert's sci-fi book DUNE, but doesn't appear to show any other useful information. Lets start `gobuster` to see if we can find any hidden web pages.
 
 ```
