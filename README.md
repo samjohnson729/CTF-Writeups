@@ -1,5 +1,7 @@
 # CTF Writeups
 
-- [TryHackMe: DUNE](/DUNE.md)
-- [TryHackMe: Mr Robot CTF](/Mr%20Robot.md)
-- [TryHackMe: Pickle Rick](/Pickle%20Rick.md)
+## TryHackMe Writeups
+
+- [DUNE](/TryHackMe/DUNE.md)
+- [Mr Robot CTF](/TryHackMe/Mr%20Robot.md)
+- [Pickle Rick](/TryHackMe/Pickle%20Rick.md)
