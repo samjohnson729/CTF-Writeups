@@ -90,15 +90,15 @@ Gobuster v2.0.1              OJ Reeves (@TheColonial)
 
 Wow, that's along list, let's start working our way down. The first interesting file I found was `/license`, which contains some text that looks like bas64 at the bottom of the file. Sure enough, after decoding the base64 we found a username/password combination!
 
-The next interesting file I found was `/robots.txt`, which references two different files: `fsocity.dic` and `key-1-of-3.txt`. These contains a username/password list, and our first key!
+The next interesting file I found was `/robots.txt`, which references two different files: `fsocity.dic` and `key-1-of-3.txt`. These contain a username/password list, and our first key!
 
 We also found from our web server enumeration many standard directories for a wordpress site. Let's try the credientials we found previously on the login page: `/wp-login`.
 
-# 2.5 (Alternate Method) Hydra
+# 2.5 (Alternate Method) Brute Force
 
 Although you can find the Wordpress credentials in the `/license` file, I also found an alternate way that uses the `fsocity.dic` file that was provided: brute force.
 
-I noticed while exploring the login page at `/wp-login` that the error message specifically stated that my username was incorrect. This makes a username:password combination much easier to brute force because we can do them one at a time instead of having to guess both correct at the same time. I'll use `hydra` to brute force the username.
+I noticed while exploring the login page at `/wp-login` that the error message specifically stated that the username I provided was incorrect. This makes a username/password combination much easier to brute force because we can do them one at a time instead of having to guess both correctly at the same time. I'll use `hydra` to brute force the username.
 
 ```
 $ hydra -L fsocity.dic -p password <ip-address> http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In&redirect_to=http%3A%2F%2F10.10.41.14%2Fwp-admin%2F&testcookie=1:F=Invalid username" -v
@@ -144,9 +144,9 @@ We got it! Now we can login to the Wordpress site using these credentials.
 
 # 3. Wordpress Exploitation
 
-Using the credentials we found in `/license`, we are able to login to the Wordpress site as the admin user. Right away we see this is Wordpress 4.3.1 running the "twentyfifteen" theme. As the admin user, we may be able to edit some php file included in the theme, enabling us to execute arbitrary code.
+Using the credentials we found in `/license` (or from brute forcing), we are able to login to the Wordpress site as the admin user. Right away we see this is Wordpress 4.3.1 running the "twentyfifteen" theme. As the admin user, we may be able to edit some php file included in the theme, enabling us to execute arbitrary code.
 
-For example, if you navigate to Appearance --> Editor in the left menu panel, you'll be able to edit theme files. I'll take the first file listed, 404.php, and add my own php reverse shell script in it's place. Now, I'll open a netcat listener on my machine to receive the reverse shell, then navigate to `http://<ip-address>/wp-content/themes/twentyfifteen/404.php` in my browser:
+For example, if you navigate to Appearance --> Editor in the left menu panel, you'll be able to edit theme files. I'll take the first file listed, `404.php`, and add my own php reverse shell script in it's place. Now, I'll open a netcat listener on my machine to receive the reverse shell, then navigate to `http://<ip-address>/wp-content/themes/twentyfifteen/404.php` in my browser:
 
 ```
 $ nc -lvnp <port>
@@ -170,7 +170,7 @@ We have a reverse shell!
 Let's take a look around. First, I'll check out the `/home` directory to see what other users are on this machine. There is a home directory for `robot` that we have read access to!
 
 ```
-$ ls -la
+$ ls -la /home/robot/
 
 total 16
 drwxr-xr-x 2 root  root  4096 Nov 13  2015 .
@@ -182,6 +182,7 @@ drwxr-xr-x 3 root  root  4096 Nov 13  2015 ..
 We found the second flag, but we can't read it yet. The file `password.raw-md5` contains a password hash for user `robot`, let's see if we can crack the hash using John the Ripper.
 
 ```
+$ echo "<redacted-hash-for-robot>" > hash
 $ john hash --wordlist=/usr/share/wordlists/rockyou.txt --format=raw-md5         
 Using default input encoding: UTF-8
 Loaded 1 password hash (Raw-MD5 [MD5 256/256 AVX2 8x3])
@@ -230,7 +231,7 @@ robot@linux:~$ find / -perm /4000 2>/dev/null
 /usr/lib/pt_chown
 ```
 
-Most of these are prety standard, but one of them stands out to me: `namp`. Because the SUID bit is set, whenever `nmap` is executed it runs as the root user. We can exploit this to become root outselves. One way we can do this is by entering `nmap`'s "interactive" mode, then executing arbitrary commands as root:
+Most of these are pretty standard, but one of them stands out to me: `namp`. Because the SUID bit is set, whenever `nmap` is executed it runs as the root user. We can exploit this to become root outselves. One way we can do this is by entering `nmap`'s "interactive" mode, then executing arbitrary commands as root:
 
 ```
 robot@linux:~$ nmap --interactive
