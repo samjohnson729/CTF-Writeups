@@ -69,7 +69,7 @@ Gobuster v2.0.1              OJ Reeves (@TheColonial)
 
 We do find a login page at `/login.php`, but we don't have a password. We could try brute forcing, but I'll look at the other files and directories first. `/robots.txt` contains a string, possibly a password: <redacted>. Let's try loging in at `/login.php` using the credentials we found.
 
-# 3. File System Exploration
+## 3. File System Exploration
 
 We were able to login, which brings us to `/portal.php`. This page seems to be a terminal that we can interact with. Let's try some basic commands:
 
@@ -101,7 +101,7 @@ second ingredients
 
 We found our second ingredient in a file called `second ingredients`! One to go!
 
-# 4. Privilege Escalation
+## 4. Privilege Escalation
 
 The last flag is most likely hidden in the `/root` directory, but we do not have access to it. We need to find a way to escalate our privileges. Let's check if we're allowed to use `sudo` on this machine:
 

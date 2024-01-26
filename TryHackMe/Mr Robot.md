@@ -94,7 +94,7 @@ The next interesting file I found was `/robots.txt`, which references two differ
 
 We also found from our web server enumeration many standard directories for a wordpress site. Let's try the credientials we found previously on the login page: `/wp-login`.
 
-# 2.5 (Alternate Method) Brute Force
+## 2.5 (Alternate Method) Brute Force
 
 Although you can find the Wordpress credentials in the `/license` file, I also found an alternate way that uses the `fsocity.dic` file that was provided: brute force.
 
@@ -142,7 +142,7 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2024-01-26 12:14:
 
 We got it! Now we can login to the Wordpress site using these credentials.
 
-# 3. Wordpress Exploitation
+## 3. Wordpress Exploitation
 
 Using the credentials we found in `/license` (or from brute forcing), we are able to login to the Wordpress site as the admin user. Right away we see this is Wordpress 4.3.1 running the "twentyfifteen" theme. As the admin user, we may be able to edit some php file included in the theme, enabling us to execute arbitrary code.
 
@@ -165,7 +165,7 @@ daemon
 
 We have a reverse shell!
 
-# 4. Privilege Escalation
+## 4. Privilege Escalation
 
 Let's take a look around. First, I'll check out the `/home` directory to see what other users are on this machine. There is a home directory for `robot` that we have read access to!
 
@@ -206,7 +206,7 @@ robot@linux:~$ cat /home/robot/flag-2-of-3.txt
 <redacted>
 ```
 
-# 5. Privilege Escalation Part 2
+## 5. Privilege Escalation Part 2
 
 Our next step is getting root. I did a few standard things to check for attack vectors: check what groups `robot` is in, check `sudo` privileges, and lastly a quick search for SUID files.
 
@@ -247,7 +247,7 @@ root
 
 We are root now!
 
-# 6. Root
+## 6. Root
 
 We now have access to `/root` and can read the final flag!
 
